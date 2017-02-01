@@ -49,12 +49,13 @@ module Language.Hakaru.Syntax.AST
     , MeasureOp(..)
     -- * Constant values
     , Literal(..)
-    
+
     -- * implementation details
     , foldMapPairs
     , traversePairs
     ) where
 
+import           Data.Hashable
 import           Data.Sequence (Seq)
 import qualified Data.Foldable as F
 import qualified Data.List.NonEmpty as L
@@ -108,6 +109,19 @@ instance Eq1 Literal where
 
 instance Eq (Literal a) where
     (==) = eq1
+
+instance Hashable Natural where
+    hashWithSalt s nat = hashWithSalt s (toInteger nat)
+
+instance Hashable (Literal a) where
+    hashWithSalt s (LNat n)  = s `hashWithSalt`
+                              (0 :: Int) `hashWithSalt` n
+    hashWithSalt s (LInt i)  = s `hashWithSalt`
+                              (1 :: Int) `hashWithSalt` i
+    hashWithSalt s (LProb p) = s `hashWithSalt`
+                              (2 :: Int) `hashWithSalt` p
+    hashWithSalt s (LReal r) = s `hashWithSalt`
+                              (3 :: Int) `hashWithSalt` r
 
 -- TODO: instance Read (Literal a)
 
@@ -240,6 +254,14 @@ instance Eq1 NaryOp where
 instance Eq (NaryOp a) where -- This one can be derived
     (==) = eq1
 
+instance Hashable (NaryOp a) where
+    hashWithSalt s And = hashWithSalt s (0 :: Int)
+    hashWithSalt s Or  = hashWithSalt s (1 :: Int)
+    hashWithSalt s Xor = hashWithSalt s (2 :: Int)
+    hashWithSalt s Iff = hashWithSalt s (3 :: Int)
+    hashWithSalt s Min = hashWithSalt s (4 :: Int)
+    hashWithSalt s Max = hashWithSalt s (5 :: Int)
+    hashWIth
 
 ----------------------------------------------------------------
 -- TODO: should we define our own datakind for @([Hakaru], Hakaru)@ or perhaps for the @/\a -> ([a], Hakaru)@ part of it?
@@ -638,7 +660,7 @@ data SCon :: [([Hakaru], Hakaru)] -> Hakaru -> * where
         ] ('HMeasure b)
 
     -- TODO: unify Plate and Chain as @sequence@ a~la traversable?
-    Plate :: SCon 
+    Plate :: SCon
         '[ LC 'HNat
         , '( '[ 'HNat ], 'HMeasure a)
         ] ('HMeasure ('HArray a))

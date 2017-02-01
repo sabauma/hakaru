@@ -110,7 +110,8 @@ Library
                        process            >= 1.1  && < 2.0,
                        HUnit              >= 1.2  && < 2.0,
                        mtl                >= 2.1,
-                       filepath           >= 1.1.0.2
+                       filepath           >= 1.1.0.2,
+                       hashable           >= 1.2.0.0
 
 ----------------------------------------------------------------
 Test-Suite system-testsuite

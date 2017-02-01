@@ -58,6 +58,7 @@ module Language.Hakaru.Syntax.Variable
     , mapAssocs
     ) where
 
+import           Data.Hashable
 import           Data.Proxy        (KProxy(..))
 import           Data.Typeable     (Typeable)
 import           Data.Text         (Text)
@@ -142,6 +143,10 @@ instance Eq1 Variable where
 instance Eq (Variable a) where
     (==) = (==) `on` varID
 
+-- This instance is consistent with (==) and varEq. The variable's type is not
+-- factored into the hash.
+instance Hashable (Variable a) where
+    hashWithSalt salt var = hashWithSalt salt (fromNat $ varID var)
 
 -- BUG: this must be consistent with the 'Eq' instance, but should
 -- also be consistent with the 'varEq' interpretation. In particular,
