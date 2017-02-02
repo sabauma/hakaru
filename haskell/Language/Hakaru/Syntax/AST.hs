@@ -110,18 +110,17 @@ instance Eq1 Literal where
 instance Eq (Literal a) where
     (==) = eq1
 
+hcase :: (Hashable a) => Int -> Int -> a -> Int
+hcase s c h = s `hashWithSalt` c `hashWithSalt` h
+
 instance Hashable Natural where
     hashWithSalt s nat = hashWithSalt s (toInteger nat)
 
 instance Hashable (Literal a) where
-    hashWithSalt s (LNat n)  = s `hashWithSalt`
-                              (0 :: Int) `hashWithSalt` n
-    hashWithSalt s (LInt i)  = s `hashWithSalt`
-                              (1 :: Int) `hashWithSalt` i
-    hashWithSalt s (LProb p) = s `hashWithSalt`
-                              (2 :: Int) `hashWithSalt` p
-    hashWithSalt s (LReal r) = s `hashWithSalt`
-                              (3 :: Int) `hashWithSalt` r
+    hashWithSalt s (LNat n)  = hcase s 0 n
+    hashWithSalt s (LInt i)  = hcase s 1 i
+    hashWithSalt s (LProb p) = hcase s 2 p
+    hashWithSalt s (LReal r) = hcase s 3 r
 
 -- TODO: instance Read (Literal a)
 
@@ -259,9 +258,8 @@ instance Hashable (NaryOp a) where
     hashWithSalt s Or  = hashWithSalt s (1 :: Int)
     hashWithSalt s Xor = hashWithSalt s (2 :: Int)
     hashWithSalt s Iff = hashWithSalt s (3 :: Int)
-    hashWithSalt s Min = hashWithSalt s (4 :: Int)
-    hashWithSalt s Max = hashWithSalt s (5 :: Int)
-    hashWIth
+    {-hashWithSalt s Min = hashWithSalt s (4 :: Int)-}
+    {-hashWithSalt s Max = hashWithSalt s (5 :: Int)-}
 
 ----------------------------------------------------------------
 -- TODO: should we define our own datakind for @([Hakaru], Hakaru)@ or perhaps for the @/\a -> ([a], Hakaru)@ part of it?
