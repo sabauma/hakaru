@@ -77,6 +77,7 @@ import Language.Hakaru.CodeGen.Types
 import Language.Hakaru.CodeGen.AST
 import Language.Hakaru.CodeGen.Pretty
 
+import Data.Char       (isAscii)
 import Data.Number.Nat (fromNat)
 import qualified Data.IntMap.Strict as IM
 import qualified Data.Text          as T
@@ -151,6 +152,8 @@ reserveName :: String -> CodeGen ()
 reserveName s =
   get >>= \cg -> put $ cg { reservedNames = s `S.insert` reservedNames cg }
 
+sanitizeHint :: T.Text -> String
+sanitizeHint = T.unpack . T.filter isAscii
 
 genIdent :: CodeGen Ident
 genIdent =
@@ -182,12 +185,10 @@ genIdent' s =
           else (names,name)
         pullName _ _ = error "should not happen, names is infinite"
 
-
-
 createIdent :: Variable (a :: Hakaru) -> CodeGen Ident
 createIdent var@(Variable name _ _) =
   do !cg <- get
-     let ident = Ident $ (T.unpack name) ++ "_" ++ (head $ freshNames cg)
+     let ident = Ident $ (sanitizeHint name) ++ "_" ++ (head $ freshNames cg)
          env'  = updateEnv var ident (varEnv cg)
      put $! cg { freshNames = tail $ freshNames cg
                , varEnv     = env' }
